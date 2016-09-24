@@ -63,6 +63,8 @@ class Kohana_Migrations_Helper {
 				require $file;
 
 				$class = self::filename_to_class($filename);
+
+				/** @var Migration $migration */
 				$migration = new $class;
 
 				$available_migrations[$migration->id()] = array
@@ -70,7 +72,7 @@ class Kohana_Migrations_Helper {
 					'id'       => $migration->id(),
 					'filename' => $filename,
 					'name'     => $migration->name(),
-					'info'     => $migration->info()
+					'description'     => $migration->description()
 				);
 			}
 		}
@@ -95,9 +97,12 @@ class Kohana_Migrations_Helper {
 	 *
 	 * @param string $filename  migration filename
 	 * @param string $direction direction
-	 * @return void
+	 * @param Minion_Task $task
+	 * @return bool
+	 * @throws Kohana_Exception
+	 * @throws Kohana_Minion_Exception
 	 */
-	public static function apply($filename, $direction)
+	public static function apply($filename, $direction, Minion_Task $task)
 	{
 		$config = Kohana::$config->load('migrations')
 			->as_array();
@@ -109,26 +114,35 @@ class Kohana_Migrations_Helper {
 			require Kohana::find_file($config['directory'], $filename, FALSE);
 		}
 
+		/** @var Migration $class */
 		$class = new $class;
+
+		// Skip migrations without permission
+		if (!static::check_file_permissions($class, $task))
+			return FALSE;
 
 		try
 		{
+		    static::before_migration($class, $direction);
+
 			call_user_func(array($class, $direction));
+
+            static::after_migration($class, $direction);
 		}
 		catch (Exception $e)
 		{
 			throw new Kohana_Minion_Exception('Fatal error! '.$e->getMessage().' in '.$e->getFile().':'.$e->getFile());
 		}
 
-		if ($direction == self::DIRECTION_UP)
+        if ($direction == self::DIRECTION_UP)
 		{
-			DB::insert($config['table'], array('id', 'date', 'name', 'filename', 'info'))
+			DB::insert($config['table'], array('id', 'date', 'name', 'filename', 'description'))
 				->values(array(
-					'id'       => $class->id(),
-					'date'     => date('Y-m-d H:i:s'),
-					'name'     => $class->name(),
-					'filename' => $filename,
-					'info'     => $class->info()
+					'id'            => $class->id(),
+					'date'          => date('Y-m-d H:i:s'),
+					'name'          => $class->name(),
+					'filename'      => $filename,
+					'description'   => $class->description(),
 					))
 				->execute();
 		}
@@ -138,6 +152,55 @@ class Kohana_Migrations_Helper {
 				->where('id', '=', $class->id())
 				->execute();
 		}
+
+		return TRUE;
+	}
+
+	/**
+	 * Checks permissions for current migration
+	 * Returns FALSE if migration is not allowed in current context
+	 *
+	 * @param Migration $obj
+	 * @param Minion_Task $task
+	 * @return bool
+	 */
+	protected static function check_file_permissions(Migration $obj, Minion_Task $task)
+	{
+		return TRUE;
+	}
+
+    /**
+     * @param Migration $migration
+     * @param string $direction
+     */
+	protected static function before_migration(Migration $migration, $direction)
+	{
+	    switch ($direction) {
+            case self::DIRECTION_UP:
+                $migration->before_up();
+                break;
+
+            case self::DIRECTION_DOWN:
+                $migration->before_down();
+                break;
+        }
+	}
+
+    /**
+     * @param Migration $migration
+     * @param string $direction
+     */
+	protected static function after_migration(Migration $migration, $direction)
+	{
+        switch ($direction) {
+            case self::DIRECTION_UP:
+                $migration->after_up();
+                break;
+
+            case self::DIRECTION_DOWN:
+                $migration->after_down();
+                break;
+        }
 	}
 
 	/**
@@ -152,9 +215,11 @@ class Kohana_Migrations_Helper {
 	 */
 	public static function table(array $data, array $filters = NULL)
 	{
+        $columns = array();
+
 		if (sizeof($data) > 0)
 		{
-			$columns = ($filters === NULL) ? array_keys(Arr::get(array_values($filter), 0)) : array_keys($filters);
+			$columns = ($filters === NULL) ? array_keys(Arr::get(array_values($filters), 0)) : array_keys($filters);
 
 			foreach ($columns as $column)
 			{

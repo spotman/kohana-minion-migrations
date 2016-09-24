@@ -29,10 +29,16 @@ class Kohana_Task_Migrations_History extends Minion_Task {
 		'limit' => 10
 	);
 
+    /**
+     * @param array $params
+     * @return void
+     */
 	protected function _execute(array $params)
 	{
-		$history = DB::select('id', 'date', 'name', 'info')
+		$history = DB::select('id', 'date', 'name', 'description')
 			->from(Kohana::$config->load('migrations')->table);
+
+        $legend = '';
 
 		if ($params['limit'] !== NULL)
 		{
@@ -56,14 +62,15 @@ class Kohana_Task_Migrations_History extends Minion_Task {
 
 		Minion_CLI::write($legend.':');
 
-		$history = $history
-			->order_by('id', 'DESC')
-			->execute()
-			->as_array();
+        /** @var Database_Result $result */
+		$result = $history->order_by('id', 'DESC')->execute();
+
+		$history = $result->as_array();
 
 		if (sizeof($history) == 0)
 		{
-			return Minion_CLI::write('Nothing found');
+            Minion_CLI::write('Nothing found');
+			return;
 		}
 
 		$filters = array
@@ -80,7 +87,7 @@ class Kohana_Task_Migrations_History extends Minion_Task {
 				array('Migrations_Helper::fit_text', array(':value', 32))
 			),
 
-			'info' => array
+			'description' => array
 			(
 				array('Migrations_Helper::fit_text', array(':value', 32))
 			)

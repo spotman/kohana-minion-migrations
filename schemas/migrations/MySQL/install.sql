@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS `:prefix_migrations` (
   `date` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   `filename` varchar(255) NOT NULL,
   `name` varchar(255) NOT NULL,
-  `info` TEXT NOT NULL DEFAULT '',
+  `description` TEXT NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   UNIQUE KEY `migrations_uniq_filename` (`filename`),
   KEY `migrations_date` (`date`)

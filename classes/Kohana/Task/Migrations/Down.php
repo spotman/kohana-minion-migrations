@@ -26,7 +26,8 @@ class Kohana_Task_Migrations_Down extends Minion_Task {
 	 */
 	protected $_options = array
 	(
-		'to' => NULL
+		'to' => NULL,
+		'limit'	=>	NULL,
 	);
 
 	protected function _execute(array $params)
@@ -36,7 +37,12 @@ class Kohana_Task_Migrations_Down extends Minion_Task {
 
 		if ($params['to'] !== NULL)
 		{
-			$applied_migrations->where('id', '>', $params['to']);
+			$applied_migrations->where('id', '>', (int) $params['to']);
+		}
+
+		if ($params['limit'] !== NULL)
+		{
+			$applied_migrations->limit((int) $params['limit']);
 		}
 
 		$applied_migrations = $applied_migrations->order_by('id', 'DESC')
@@ -47,8 +53,12 @@ class Kohana_Task_Migrations_Down extends Minion_Task {
 		{
 			try
 			{
-				Migrations_Helper::apply($migration['filename'], Migrations_Helper::DIRECTION_DOWN);
-				Minion_CLI::write('Migration '.$migration['filename'].' rolled back');
+				$result = Migrations_Helper::apply($migration['filename'], Migrations_Helper::DIRECTION_DOWN, $this);
+
+				if ($result)
+				{
+					Minion_CLI::write('Migration '.$migration['filename'].' rolled back');
+				}
 			}
 			catch (Kohana_Minion_Exception $e)
 			{

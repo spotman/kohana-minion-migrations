@@ -54,7 +54,7 @@ Let's take a look at the generated file:
 class Migration1384195794_My_First_Migration extends Migration {
 
 	/**
-	 * Returns migtation ID
+	 * Returns migration ID
 	 *
 	 * @return integer
 	 */
@@ -64,7 +64,7 @@ class Migration1384195794_My_First_Migration extends Migration {
 	}
 
 	/**
-	 * Returns migtation name
+	 * Returns migration name
 	 *
 	 * @return string
 	 */
@@ -74,11 +74,11 @@ class Migration1384195794_My_First_Migration extends Migration {
 	}
 
 	/**
-	 * Returns migtation info
+	 * Returns migration description
 	 *
 	 * @return string
 	 */
-	public function info()
+	public function description()
 	{
 		return 'This is description of my awesome first migration';
 	}

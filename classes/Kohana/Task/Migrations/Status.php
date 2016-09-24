@@ -30,7 +30,7 @@ class Kohana_Task_Migrations_Status extends Minion_Task {
 				array('Migrations_Helper::fit_text', array(':value', 32))
 			),
 
-			'info' => array
+			'description' => array
 			(
 				array('Migrations_Helper::fit_text', array(':value', 32))
 			)

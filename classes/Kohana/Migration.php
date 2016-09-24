@@ -13,7 +13,7 @@
 abstract class Kohana_Migration {
 
 	/**
-	 * Returns migtation ID
+	 * Returns migration ID
 	 *
 	 * @return integer
 	 */
@@ -27,11 +27,11 @@ abstract class Kohana_Migration {
 	abstract public function name();
 
 	/**
-	 * Returns migtation info
+	 * Returns migtation description
 	 *
 	 * @return string
 	 */
-	abstract public function info();
+	abstract public function description();
 
 	/**
 	 * Takes a migration
@@ -46,5 +46,41 @@ abstract class Kohana_Migration {
 	 * @return void
 	 */
 	abstract public function down();
+
+    /**
+     * This method will be executed before up migration starts
+     * You may put additional checks here
+     */
+    public function before_up()
+    {
+        // Nothing by default
+    }
+
+    /**
+     * This method will be executed before down migration starts
+     * You may put additional checks here
+     */
+    public function before_down()
+    {
+        // Nothing by default
+    }
+
+    /**
+     * This method will be executed after up migration ends
+     * You may put here finalizing/cleanup statements
+     */
+    public function after_up()
+    {
+        // Nothing by default
+    }
+
+    /**
+     * This method will be executed after down migration ends
+     * You may put here finalizing/cleanup statements
+     */
+    public function after_down()
+    {
+        // Nothing by default
+    }
 
 } // End Kohana_Migration

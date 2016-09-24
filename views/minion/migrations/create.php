@@ -4,7 +4,7 @@
 class <?php echo $class ?> extends Migration {
 
 	/**
-	 * Returns migtation ID
+	 * Returns migration ID
 	 *
 	 * @return integer
 	 */
@@ -14,7 +14,7 @@ class <?php echo $class ?> extends Migration {
 	}
 
 	/**
-	 * Returns migtation name
+	 * Returns migration name
 	 *
 	 * @return string
 	 */
@@ -24,13 +24,13 @@ class <?php echo $class ?> extends Migration {
 	}
 
 	/**
-	 * Returns migtation info
+	 * Returns migration info
 	 *
 	 * @return string
 	 */
-	public function info()
+	public function description()
 	{
-		return '<?php echo addcslashes($info, '\'') ?>';
+		return '<?php echo addcslashes($description, '\'') ?>';
 	}
 
 	/**

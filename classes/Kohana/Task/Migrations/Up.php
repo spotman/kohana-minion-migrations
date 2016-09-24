@@ -39,8 +39,12 @@ class Kohana_Task_Migrations_Up extends Minion_Task {
 			{
 				try
 				{
-					Migrations_Helper::apply($migration['filename'], Migrations_Helper::DIRECTION_UP);
-					Minion_CLI::write('Migration '.$migration['filename'].' applied');
+					$result = Migrations_Helper::apply($migration['filename'], Migrations_Helper::DIRECTION_UP, $this);
+
+					if ($result)
+					{
+						Minion_CLI::write('Migration '.$migration['filename'].' applied');
+					}
 				}
 				catch (Kohana_Minion_Exception $e)
 				{
