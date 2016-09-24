@@ -23,4 +23,4 @@ class Kohana_Task_Migrations_RenameInfoColumn extends Minion_Task {
 		Minion_CLI::write('Done!');
 	}
 
-} // End Kohana_Task_Migrations_Create
+} // End Kohana_Task_Migrations_RenameInfoColumn
