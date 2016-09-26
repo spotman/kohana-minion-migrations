@@ -12,10 +12,20 @@
  */
 class Kohana_Task_Migrations_Create extends Minion_Task {
 
+    protected $_options = [
+        'name'          =>  null,
+        'description'   =>  null,
+    ];
+
 	protected function _execute(array $params)
 	{
-		$name = Minion_CLI::read('Migration short name (3-128 characters, [A-Za-z0-9-_] )');
-		$info = Minion_CLI::read('Migration description (not necessarily)');
+	    $name = $params['name']
+            ? $params['name']
+            : Minion_CLI::read('Migration short name (3-128 characters, [A-Za-z0-9-_] )');
+
+		$desc = ($params['description'] !== null)
+            ? $params['description']
+            : Minion_CLI::read('Migration description (not necessarily)');
 
 		$validation = Validation::factory(array('name' => $name))
 			->rules('name', array(
@@ -45,7 +55,7 @@ class Kohana_Task_Migrations_Create extends Minion_Task {
 			->bind('class', $class)
 			->bind('id', $id)
 			->bind('name', $name)
-			->bind('description', $info);
+			->bind('description', $desc);
 
 		$filename = APPPATH.Kohana::$config->load('migrations')->directory
 			.DIRECTORY_SEPARATOR.$filename;
