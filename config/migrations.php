@@ -14,5 +14,13 @@ return array
 	 *
 	 * @var string
 	 */
-	'table' => 'migrations'
+	'table' => 'migrations',
+
+    /**
+     * Scopes with paths for creating migration files
+     */
+    'scopes'    =>  [
+        'app'           =>  APPPATH,
+        'app:module'    =>  MODPATH,
+    ],
 );
