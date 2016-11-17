@@ -103,7 +103,7 @@ class Kohana_Task_Migrations_Create extends Minion_Task {
 
             if (isset($allowed_scopes[$key]))
             {
-                $path = $allowed_scopes[$key].DIRECTORY_SEPARATOR.$entity_name;
+                $path = rtrim($allowed_scopes[$key], DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.$entity_name;
             }
         }
         else if ($scopes_count == 1)
@@ -113,13 +113,13 @@ class Kohana_Task_Migrations_Create extends Minion_Task {
 
             if (isset($allowed_scopes[$key]))
             {
-                $path = $allowed_scopes[$key];
+                $path = rtrim($allowed_scopes[$key], DIRECTORY_SEPARATOR);
             }
         }
 
         if (!$path)
         {
-            throw new Exception('Unknown migration scope :value', [':value' => $scope]);
+            throw new Minion_Exception('Unknown migration scope :value', [':value' => $scope]);
         }
 
         return $path;
