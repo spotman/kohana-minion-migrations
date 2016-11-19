@@ -43,7 +43,7 @@ class Kohana_Task_Migrations_Up extends Minion_Task {
 
 					if ($result)
 					{
-						Minion_CLI::write('Migration '.$migration['filename'].' applied');
+						Minion_CLI::write('Migration '.$migration['filename'].' applied'.PHP_EOL);
 					}
 				}
 				catch (Kohana_Minion_Exception $e)
