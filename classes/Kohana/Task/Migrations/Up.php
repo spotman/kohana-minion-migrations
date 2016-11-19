@@ -54,8 +54,6 @@ class Kohana_Task_Migrations_Up extends Minion_Task {
 				}
 			}
 		}
-
-		Minion_CLI::write('Done!');
 	}
 
 	public function build_validation(Validation $validation)
