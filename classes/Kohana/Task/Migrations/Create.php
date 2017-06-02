@@ -78,7 +78,7 @@ class Kohana_Task_Migrations_Create extends Minion_Task {
 		{
 			file_put_contents($full_path, $contents);
 		}
-		catch (Exception $e)
+		catch (Throwable $e)
 		{
 			Minion_CLI::write('Error! '.$e->getMessage());
 		}

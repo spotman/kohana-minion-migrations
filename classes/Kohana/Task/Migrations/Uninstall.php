@@ -44,7 +44,7 @@ class Kohana_Task_Migrations_Uninstall extends Minion_Task {
 			Database::instance()
 				->query(NULL, str_replace(':prefix_', $table_prefix, $query));
 		}
-		catch (Exception $e)
+		catch (Throwable $e)
 		{
 			throw new Kohana_Minion_Exception($e->getMessage());
 		}
