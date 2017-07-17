@@ -114,46 +114,61 @@ class Kohana_Migrations_Helper {
 			require Kohana::find_file($config['directory'], $filename, FALSE);
 		}
 
-		/** @var Migration $class */
-		$class = new $class;
+		$instance = static::create_migration_instance($class);
 
 		// Skip migrations without permission
-		if (!static::check_file_permissions($class, $task))
-			return FALSE;
+		if (!static::check_file_permissions($instance, $task))
+		{
+            return FALSE;
+        }
 
 		try
 		{
-		    static::before_migration($class, $direction);
+		    static::before_migration($instance, $direction);
 
-			call_user_func(array($class, $direction));
+		    $instance->$direction();
 
-            static::after_migration($class, $direction);
+            static::after_migration($instance, $direction);
+		}
+		catch (Throwable $e)
+		{
+			throw new Kohana_Minion_Exception('Fatal error! '.$e->getMessage().' in '.$e->getFile().':'.$e->getFile());
 		}
 		catch (Exception $e)
 		{
 			throw new Kohana_Minion_Exception('Fatal error! '.$e->getMessage().' in '.$e->getFile().':'.$e->getFile());
 		}
 
-        if ($direction == self::DIRECTION_UP)
+        if ($direction === self::DIRECTION_UP)
 		{
 			DB::insert($config['table'], array('id', 'date', 'name', 'filename', 'description'))
 				->values(array(
-					'id'            => $class->id(),
+					'id'            => $instance->id(),
 					'date'          => date('Y-m-d H:i:s'),
-					'name'          => $class->name(),
+					'name'          => $instance->name(),
 					'filename'      => $filename,
-					'description'   => $class->description(),
+					'description'   => $instance->description(),
 					))
 				->execute();
 		}
 		else
 		{
 			DB::delete($config['table'])
-				->where('id', '=', $class->id())
+				->where('id', '=', $instance->id())
 				->execute();
 		}
 
 		return TRUE;
+	}
+
+    /**
+     * @param $class_name
+     *
+     * @return Migration
+     */
+    protected static function create_migration_instance($class_name)
+    {
+        return new $class_name;
 	}
 
 	/**
@@ -217,7 +232,7 @@ class Kohana_Migrations_Helper {
 	{
         $columns = array();
 
-		if (sizeof($data) > 0)
+		if (count($data) > 0)
 		{
 			$columns = ($filters === NULL) ? array_keys(Arr::get(array_values($filters), 0)) : array_keys($filters);
 
@@ -246,7 +261,7 @@ class Kohana_Migrations_Helper {
 
 		$lines = self::_data_to_lines($data, $column_sizes);
 
-		$border_size = array_sum($column_sizes) + 3 * sizeof($column_sizes) + 1;
+		$border_size = array_sum($column_sizes) + 3 * count($column_sizes) + 1;
 
 		return (string) View::factory('minion/migrations/helper/table')
 			->bind('lines', $lines)
@@ -346,7 +361,7 @@ class Kohana_Migrations_Helper {
 
 							foreach ($filter[1] as $value)
 							{
-								$values[] = ($value == ':value') ? $column : $value;
+								$values[] = ($value === ':value') ? $column : $value;
 							}
 						}
 						else
@@ -401,9 +416,9 @@ class Kohana_Migrations_Helper {
 
 		foreach ($array as $row)
 		{
-			if (sizeof($row) > $max_count)
+			if (count($row) > $max_count)
 			{
-				$max_count = sizeof($row);
+				$max_count = count($row);
 			}
 		}
 
