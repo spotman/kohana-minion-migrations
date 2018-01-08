@@ -1,4 +1,4 @@
-<?php echo '<?php defined(\'SYSPATH\') or die(\'No direct access allowed.\');' ?>
+<?php echo '<?php' ?>
 
 
 class <?php echo $class ?> extends Migration {
