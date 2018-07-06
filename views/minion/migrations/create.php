@@ -8,7 +8,7 @@ class <?php echo $class ?> extends Migration {
 	 *
 	 * @return integer
 	 */
-	public function id()
+	public function id(): int
 	{
 		return <?php echo $id ?>;
 	}
@@ -18,7 +18,7 @@ class <?php echo $class ?> extends Migration {
 	 *
 	 * @return string
 	 */
-	public function name()
+	public function name(): string
 	{
 		return '<?php echo addcslashes($name, '\'') ?>';
 	}
@@ -28,7 +28,7 @@ class <?php echo $class ?> extends Migration {
 	 *
 	 * @return string
 	 */
-	public function description()
+	public function description(): string
 	{
 		return '<?php echo addcslashes($description, '\'') ?>';
 	}
@@ -38,7 +38,7 @@ class <?php echo $class ?> extends Migration {
 	 *
 	 * @return void
 	 */
-	public function up()
+	public function up(): void
 	{
 
 	}
@@ -48,7 +48,7 @@ class <?php echo $class ?> extends Migration {
 	 *
 	 * @return void
 	 */
-	public function down()
+	public function down(): void
 	{
 
 	}
