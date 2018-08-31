@@ -64,8 +64,7 @@ class Kohana_Migrations_Helper {
 
 				$class = self::filename_to_class($filename);
 
-				/** @var Migration $migration */
-				$migration = new $class;
+				$migration = static::create_migration_instance($class);
 
 				$available_migrations[$migration->id()] = array
 				(
