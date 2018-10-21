@@ -57,10 +57,10 @@ class Kohana_Task_Migrations_Create extends Minion_Task {
 		$class    = Migrations_Helper::filename_to_class($filename);
 
 		$contents = View::factory('minion/migrations/create')
-			->bind('class', $class)
-			->bind('id', $id)
-			->bind('name', $name)
-			->bind('description', $desc);
+			->set('class', $class)
+			->set('id', $id)
+			->set('name', $name)
+			->set('description', $desc);
 
         $scope_directory = rtrim($this->detect_scope_directory($scope), DIRECTORY_SEPARATOR);
         $named_directory = $this->get_directory_name();

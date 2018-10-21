@@ -262,9 +262,10 @@ class Kohana_Migrations_Helper {
 
 		$border_size = array_sum($column_sizes) + 3 * count($column_sizes) + 1;
 
-		return (string) View::factory('minion/migrations/helper/table')
-			->bind('lines', $lines)
-			->bind('border_size', $border_size);
+		return View::factory('minion/migrations/helper/table')
+			->set('lines', $lines)
+			->set('border_size', $border_size)
+            ->render();
 	}
 
 	/**
