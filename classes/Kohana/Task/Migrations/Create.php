@@ -60,7 +60,8 @@ class Kohana_Task_Migrations_Create extends Minion_Task {
 			->set('class', $class)
 			->set('id', $id)
 			->set('name', $name)
-			->set('description', $desc);
+			->set('description', $desc)
+            ->render();
 
         $scope_directory = rtrim($this->detect_scope_directory($scope), DIRECTORY_SEPARATOR);
         $named_directory = $this->get_directory_name();
