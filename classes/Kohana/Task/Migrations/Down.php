@@ -64,7 +64,7 @@ class Kohana_Task_Migrations_Down extends Minion_Task {
 			{
 				Minion_CLI::write($e->getMessage());
 				Minion_CLI::write('Halted!');
-				return;
+				exit(1);
 			}
 		}
 
