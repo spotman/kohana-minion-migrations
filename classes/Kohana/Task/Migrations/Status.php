@@ -1,43 +1,51 @@
-<?php defined('SYSPATH') or die('No direct script access.');
+<?php
+
+use BetaKiller\Console\ConsoleInputInterface;
+use BetaKiller\Console\ConsoleOptionBuilderInterface;
+use BetaKiller\Task\AbstractTask;
 
 /**
  * Show available to apply migrations
  *
- * @package    Minion/Migrations
- * @category   Helpers
- * @author     Leemo Studio
- * @author     Alexey Popov (https://github.com/Alexeyco)
+ * @package        Minion/Migrations
+ * @category       Helpers
+ * @author         Leemo Studio
+ * @author         Alexey Popov (https://github.com/Alexeyco)
  * @copyright  (c) 2009-2013 Leemo Studio
- * @license    BSD 3 http://opensource.org/licenses/BSD-3-Clause
+ * @license        BSD 3 http://opensource.org/licenses/BSD-3-Clause
  */
-class Kohana_Task_Migrations_Status extends Minion_Task {
+class Kohana_Task_Migrations_Status extends AbstractTask
+{
+    public function defineOptions(ConsoleOptionBuilderInterface $builder): array
+    {
+        return [
+            // No options here
+        ];
+    }
 
-	protected function _execute(array $params)
-	{
-		$migrations = Migrations_Helper::get_available_migrations();
+    public function run(ConsoleInputInterface $params): void
+    {
+        $migrations = Migrations_Helper::get_available_migrations();
 
-		if (sizeof($migrations) == 0)
-		{
-			return Minion_CLI::write('There is no available migrations');
-		}
+        if (sizeof($migrations) == 0) {
+            Minion_CLI::write('There is no available migrations');
 
-		$filters = array
-		(
-			'id' => array(),
+            return;
+        }
 
-			'name' => array
-			(
-				array('Migrations_Helper::fit_text', array(':value', 32))
-			),
+        $filters = [
+            'id' => [],
 
-			'description' => array
-			(
-				array('Migrations_Helper::fit_text', array(':value', 32))
-			)
-		);
+            'name' => [
+                ['Migrations_Helper::fit_text', [':value', 32]],
+            ],
 
-		Minion_CLI::write('Available migrations:');
-		Minion_CLI::write(Migrations_Helper::table($migrations, $filters));
-	}
+            'description' => [
+                ['Migrations_Helper::fit_text', [':value', 32]],
+            ],
+        ];
 
-} // End Kohana_Task_Migrations_Status
+        Minion_CLI::write('Available migrations:');
+        Minion_CLI::write(Migrations_Helper::table($migrations, $filters));
+    }
+}
