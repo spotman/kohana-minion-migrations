@@ -1,11 +1,18 @@
 <?php
 
+namespace BetaKiller\Task\Migrations;
+
 use BetaKiller\Console\ConsoleInputInterface;
 use BetaKiller\Console\ConsoleOptionBuilderInterface;
 use BetaKiller\Task\AbstractTask;
+use Database;
+use Kohana;
+use Kohana_Minion_Exception;
+use Minion_CLI;
+use Throwable;
 
 /**
- * Install migrations service
+ * Uninstall migrations service
  *
  * @package        Minion/Migrations
  * @category       Helpers
@@ -14,7 +21,7 @@ use BetaKiller\Task\AbstractTask;
  * @copyright  (c) 2009-2013 Leemo Studio
  * @license        BSD 3 http://opensource.org/licenses/BSD-3-Clause
  */
-class Kohana_Task_Migrations_Install extends AbstractTask
+class Uninstall extends AbstractTask
 {
     public function defineOptions(ConsoleOptionBuilderInterface $builder): array
     {
@@ -25,6 +32,15 @@ class Kohana_Task_Migrations_Install extends AbstractTask
 
     public function run(ConsoleInputInterface $params): void
     {
+        Minion_CLI::write('You\'re going to uninstall the migrations service. All migrations data will be lost.');
+        $sure = Minion_CLI::read('If you are sure, type fully "yes"');
+
+        if ($sure !== 'yes') {
+            Minion_CLI::write('Uninstalling canceled');
+
+            return;
+        }
+
         $db = Database::instance();
 
         $table_prefix  = $db->table_prefix();
@@ -33,22 +49,21 @@ class Kohana_Task_Migrations_Install extends AbstractTask
         $connection_type = Kohana::$config
             ->load('database.'.$instance_name.'.type');
 
-        $install_file = Kohana::find_file('schemas', 'migrations/'.$connection_type.'/install', 'sql');
+        $uninstall_file = Kohana::find_file('schemas', 'migrations/'.$connection_type.'/uninstall', 'sql');
 
-        if (!is_file($install_file)) {
-            throw new Kohana_Minion_Exception('File schemas/migrations/'.$connection_type.'/install.sql doesn\'t exist');
+        if (!is_file($uninstall_file)) {
+            throw new Kohana_Minion_Exception('File schemas/migrations/'.$connection_type.'/uninstall.sql doesn\'t exist');
         }
 
-        $query = file_get_contents($install_file);
+        $query = file_get_contents($uninstall_file);
 
         try {
             Database::instance()
                 ->query(null, str_replace(':prefix_', $table_prefix, $query));
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             throw new Kohana_Minion_Exception($e->getMessage());
         }
 
-        Minion_CLI::write('Migrations service successfully installed');
+        Minion_CLI::write('Migrations service successfully uninstalled');
     }
-
-} // End Kohana_Task_Migrations_Create
+}

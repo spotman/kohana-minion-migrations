@@ -1,7 +1,6 @@
 <?php echo '<?php' ?>
 
-
-class <?php echo $class ?> extends Migration {
+class <?php echo $class ?> extends \BetaKiller\Migration\AbstractMigration {
 
 	/**
 	 * Returns migration ID
@@ -52,6 +51,4 @@ class <?php echo $class ?> extends Migration {
 	{
 
 	}
-
-} // End <?php echo $class ?>
-
+}

@@ -48,10 +48,11 @@ Done! Check APPPATH/migrations/1384195794___my_first_migration.php
 ```
 
 Let's take a look at the generated file:
-```php
-<?php defined('SYSPATH') or die('No direct access allowed.');
 
-class Migration1384195794_My_First_Migration extends Migration {
+```php
+<?php use BetaKiller\Migration\AbstractMigration;defined('SYSPATH') or die('No direct access allowed.');
+
+class Migration1384195794_My_First_Migration extends AbstractMigration {
 
 	/**
 	 * Returns migration ID

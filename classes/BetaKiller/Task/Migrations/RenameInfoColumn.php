@@ -1,8 +1,14 @@
 <?php
 
+namespace BetaKiller\Task\Migrations;
+
 use BetaKiller\Console\ConsoleInputInterface;
 use BetaKiller\Console\ConsoleOptionBuilderInterface;
 use BetaKiller\Task\AbstractTask;
+use Database;
+use DB;
+use Kohana;
+use Minion_CLI;
 
 /**
  * Creates a new migration file
@@ -13,7 +19,7 @@ use BetaKiller\Task\AbstractTask;
  * @copyright  (c) 2016-2017 Spotman
  * @license        BSD 3 http://opensource.org/licenses/BSD-3-Clause
  */
-class Kohana_Task_Migrations_RenameInfoColumn extends AbstractTask
+class RenameInfoColumn extends AbstractTask
 {
     public function defineOptions(ConsoleOptionBuilderInterface $builder): array
     {

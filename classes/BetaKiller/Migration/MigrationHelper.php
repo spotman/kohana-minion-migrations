@@ -1,6 +1,16 @@
 <?php
 
+namespace BetaKiller\Migration;
+
+use Arr;
 use BetaKiller\Console\ConsoleTaskInterface;
+use DateTimeImmutable;
+use DB;
+use Kohana;
+use Kohana_Minion_Exception;
+use Throwable;
+use UTF8;
+use View;
 
 /**
  * Migrations helper
@@ -12,15 +22,14 @@ use BetaKiller\Console\ConsoleTaskInterface;
  * @copyright  (c) 2009-2013 Leemo Studio
  * @license        BSD 3 http://opensource.org/licenses/BSD-3-Clause
  */
-class Kohana_Migrations_Helper
+class MigrationHelper
 {
-
     /**
      * Migrations filename delimiter
      *
      * @var string
      */
-    const DELIMITER = '___';
+    public const DELIMITER = '___';
 
     /**
      * Returns migration class name from migration filename
@@ -130,8 +139,6 @@ class Kohana_Migrations_Helper
             static::after_migration($instance, $direction);
         } catch (Throwable $e) {
             throw new Kohana_Minion_Exception('Fatal error! '.$e->getMessage().' in '.$e->getFile().':'.$e->getFile());
-        } catch (Exception $e) {
-            throw new Kohana_Minion_Exception('Fatal error! '.$e->getMessage().' in '.$e->getFile().':'.$e->getFile());
         }
 
         if ($direction === self::DIRECTION_UP) {
@@ -156,7 +163,7 @@ class Kohana_Migrations_Helper
     /**
      * @param $class_name
      *
-     * @return Migration
+     * @return \BetaKiller\Migration\MigrationInterface
      */
     protected static function create_migration_instance($class_name)
     {
@@ -167,46 +174,46 @@ class Kohana_Migrations_Helper
      * Checks permissions for current migration
      * Returns FALSE if migration is not allowed in current context
      *
-     * @param Migration                                $obj
+     * @param \BetaKiller\Migration\MigrationInterface $obj
      * @param \BetaKiller\Console\ConsoleTaskInterface $task
      *
      * @return bool
      */
-    protected static function check_file_permissions(Migration $obj, ConsoleTaskInterface $task): bool
+    protected static function check_file_permissions(MigrationInterface $obj, ConsoleTaskInterface $task): bool
     {
         return true;
     }
 
     /**
-     * @param Migration $migration
-     * @param string    $direction
+     * @param \BetaKiller\Migration\MigrationInterface $migration
+     * @param string                                   $direction
      */
-    protected static function before_migration(Migration $migration, string $direction): void
+    protected static function before_migration(MigrationInterface $migration, string $direction): void
     {
         switch ($direction) {
             case self::DIRECTION_UP:
-                $migration->before_up();
+                $migration->beforeUp();
                 break;
 
             case self::DIRECTION_DOWN:
-                $migration->before_down();
+                $migration->beforeDown();
                 break;
         }
     }
 
     /**
-     * @param Migration $migration
-     * @param string    $direction
+     * @param \BetaKiller\Migration\MigrationInterface $migration
+     * @param string                                   $direction
      */
-    protected static function after_migration(Migration $migration, string $direction): void
+    protected static function after_migration(MigrationInterface $migration, string $direction): void
     {
         switch ($direction) {
             case self::DIRECTION_UP:
-                $migration->after_up();
+                $migration->afterUp();
                 break;
 
             case self::DIRECTION_DOWN:
-                $migration->after_down();
+                $migration->afterDown();
                 break;
         }
     }
@@ -215,25 +222,57 @@ class Kohana_Migrations_Helper
      * Draws a table by data
      *
      * @param array $data    data array
-     * @param array $filters data filters array
+     * @param array $columns Columns to display
      *
      * @return  string
+     * @throws \View_Exception
      * @uses    Arr::get
      * @uses    Arr::flatten
      * @uses    Arr::path
      */
-    public static function table(array $data, array $filters = null)
+    public static function table(array $data, array $columns)
     {
-        $columns = [];
+        $lookup = [
+            'id' => [],
 
-        if (count($data) > 0) {
-            $columns = ($filters === null) ? array_keys(Arr::get(array_values($filters), 0)) : array_keys($filters);
+            'date' => [
+                [
+                    function (string $dt, string $format) {
+                        $date = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $dt);
 
-            foreach ($columns as $column) {
-                if (!isset($filters[$column])) {
-                    $filters[$column] = [];
-                }
+                        return $date->format($format);
+                    },
+                    [':value', "Y-m-d\nH:i"],
+                ],
+            ],
 
+            'name' => [
+                [
+                    ['BetaKiller\Migration\MigrationHelper', 'fit_text'],
+                    [':value', 32],
+                ],
+            ],
+
+            'description' => [
+                [
+                    ['BetaKiller\Migration\MigrationHelper', 'fit_text'],
+                    [':value', 32],
+                ],
+            ],
+        ];
+
+        $filters = [];
+
+        $hasData = count($data) > 0;
+
+        if (!$hasData) {
+            $columns = [];
+        }
+
+        foreach ($columns as $column) {
+            $filters[$column] = $lookup[$column] ?? [];
+
+            if ($hasData) {
                 $filters[$column][] = ['explode', ["\n", ':value']];
             }
         }
@@ -270,7 +309,7 @@ class Kohana_Migrations_Helper
      */
     public static function fit_text($text, $limit = 32)
     {
-        $text = trim(str_replace(["\r", "\n", "\t"], null, $text));
+        $text = trim(str_replace(["\r", "\n", "\t"], '', $text));
 
         $words = explode(' ', $text);
 
@@ -448,5 +487,4 @@ class Kohana_Migrations_Helper
 
         return $lines;
     }
-
-} // End Kohana_Migrations_Helper
+}

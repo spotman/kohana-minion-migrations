@@ -1,8 +1,16 @@
 <?php
 
+namespace BetaKiller\Task\Migrations;
+
 use BetaKiller\Console\ConsoleInputInterface;
 use BetaKiller\Console\ConsoleOptionBuilderInterface;
 use BetaKiller\Task\AbstractTask;
+use Kohana;
+use BetaKiller\Migration\MigrationHelper;
+use Minion_CLI;
+use Minion_Exception;
+use Throwable;
+use UTF8;
 
 /**
  * Creates a new migration file
@@ -14,7 +22,7 @@ use BetaKiller\Task\AbstractTask;
  * @copyright  (c) 2009-2013 Leemo Studio
  * @license        BSD 3 http://opensource.org/licenses/BSD-3-Clause
  */
-class Kohana_Task_Migrations_Create extends AbstractTask
+class Create extends AbstractTask
 {
     private const ARG_NAME  = 'name';
     private const ARG_DESC  = 'description';
@@ -43,7 +51,7 @@ class Kohana_Task_Migrations_Create extends AbstractTask
             ? $params->getString(self::ARG_DESC)
             : Minion_CLI::read('Migration description (not necessarily)');
 
-        $validation = Validation::factory(['name' => $name])
+        $validation = \Validation::factory(['name' => $name])
             ->rules('name', [
                 ['not_empty'],
                 ['min_length', [':value', 3]],
@@ -63,9 +71,9 @@ class Kohana_Task_Migrations_Create extends AbstractTask
         $id       = time();
         $filename = $this->_filename($id, $name);
         $name     = UTF8::ucfirst($name);
-        $class    = Migrations_Helper::filename_to_class($filename);
+        $class    = MigrationHelper::filename_to_class($filename);
 
-        $contents = View::factory('minion/migrations/create')
+        $contents = \View::factory('minion/migrations/create')
             ->set('class', $class)
             ->set('id', $id)
             ->set('name', $name)
@@ -109,14 +117,12 @@ class Kohana_Task_Migrations_Create extends AbstractTask
             if (isset($allowed_scopes[$key])) {
                 $path = rtrim($allowed_scopes[$key], DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.$entity_name;
             }
-        } else {
-            if ($scopes_count == 1) {
-                // Root setting
-                $key = array_shift($current_scopes);
+        } elseif ($scopes_count == 1) {
+            // Root setting
+            $key = array_shift($current_scopes);
 
-                if (isset($allowed_scopes[$key])) {
-                    $path = rtrim($allowed_scopes[$key], DIRECTORY_SEPARATOR);
-                }
+            if (isset($allowed_scopes[$key])) {
+                $path = rtrim($allowed_scopes[$key], DIRECTORY_SEPARATOR);
             }
         }
 
@@ -147,7 +153,7 @@ class Kohana_Task_Migrations_Create extends AbstractTask
      */
     protected function _filename($id, $name)
     {
-        return $id.Migrations_Helper::DELIMITER.str_replace(['-', ' '], '_', UTF8::strtolower($name)).EXT;
+        return $id.MigrationHelper::DELIMITER.str_replace(['-', ' '], '_', UTF8::strtolower($name)).EXT;
     }
 
 } // End Kohana_Task_Migrations_Create

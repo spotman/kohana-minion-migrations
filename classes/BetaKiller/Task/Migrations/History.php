@@ -1,8 +1,15 @@
 <?php
 
+namespace BetaKiller\Task\Migrations;
+
 use BetaKiller\Console\ConsoleInputInterface;
 use BetaKiller\Console\ConsoleOptionBuilderInterface;
 use BetaKiller\Task\AbstractTask;
+use DateTimeImmutable;
+use DB;
+use Kohana;
+use BetaKiller\Migration\MigrationHelper;
+use Minion_CLI;
 
 /**
  * Show migrations history
@@ -18,7 +25,7 @@ use BetaKiller\Task\AbstractTask;
  * @copyright  (c) 2009-2013 Leemo Studio
  * @license        BSD 3 http://opensource.org/licenses/BSD-3-Clause
  */
-class Kohana_Task_Migrations_History extends AbstractTask
+class History extends AbstractTask
 {
     private const ARG_FROM  = 'from';
     private const ARG_LIMIT = 'limit';
@@ -64,7 +71,7 @@ class Kohana_Task_Migrations_History extends AbstractTask
 
         Minion_CLI::write($legend.':');
 
-        /** @var Database_Result $result */
+        /** @var \Database_Result $result */
         $result = $history->order_by('id', 'DESC')->execute();
 
         $history = $result->as_array();
@@ -75,22 +82,13 @@ class Kohana_Task_Migrations_History extends AbstractTask
             return;
         }
 
-        $filters = [
-            'id' => [],
-
-            'date' => [
-                ['Date::formatted_time', [':value', "Y-m-d\nH:i"]],
-            ],
-
-            'name' => [
-                ['Migrations_Helper::fit_text', [':value', 32]],
-            ],
-
-            'description' => [
-                ['Migrations_Helper::fit_text', [':value', 32]],
-            ],
+        $columns = [
+            'id',
+            'date',
+            'name',
+            'description',
         ];
 
-        Minion_CLI::write(Migrations_Helper::table($history, $filters));
+        Minion_CLI::write(MigrationHelper::table($history, $columns));
     }
 }

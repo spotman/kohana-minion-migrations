@@ -1,8 +1,14 @@
 <?php
 
+namespace BetaKiller\Task\Migrations;
+
 use BetaKiller\Console\ConsoleInputInterface;
 use BetaKiller\Console\ConsoleOptionBuilderInterface;
 use BetaKiller\Task\AbstractTask;
+use Kohana;
+use Kohana_Minion_Exception;
+use BetaKiller\Migration\MigrationHelper;
+use Minion_CLI;
 
 /**
  * Applies migrations
@@ -19,7 +25,7 @@ use BetaKiller\Task\AbstractTask;
  * @copyright  (c) 2009-2013 Leemo Studio
  * @license        BSD 3 http://opensource.org/licenses/BSD-3-Clause
  */
-class Kohana_Task_Migrations_Down extends AbstractTask
+class Down extends AbstractTask
 {
     private const ARG_TO    = 'to';
     private const ARG_LIMIT = 'limit';
@@ -34,7 +40,7 @@ class Kohana_Task_Migrations_Down extends AbstractTask
 
     public function run(ConsoleInputInterface $params): void
     {
-        $applied_migrations = DB::select('filename')
+        $applied_migrations = \DB::select('filename')
             ->from(Kohana::$config->load('migrations')->table);
 
         if ($params->has(self::ARG_TO)) {
@@ -51,7 +57,7 @@ class Kohana_Task_Migrations_Down extends AbstractTask
 
         foreach ($applied_migrations as $migration) {
             try {
-                $result = Migrations_Helper::apply($migration['filename'], Migrations_Helper::DIRECTION_DOWN, $this);
+                $result = \BetaKiller\Migration\MigrationHelper::apply($migration['filename'], MigrationHelper::DIRECTION_DOWN, $this);
 
                 if ($result) {
                     Minion_CLI::write('Migration '.$migration['filename'].' rolled back');
