@@ -7,7 +7,7 @@ use BetaKiller\Console\ConsoleTaskInterface;
 use DateTimeImmutable;
 use DB;
 use Kohana;
-use Kohana_Minion_Exception;
+use BetaKiller\Console\ConsoleException;
 use Throwable;
 use UTF8;
 use View;
@@ -111,7 +111,7 @@ class MigrationHelper
      * @return bool
      * @throws \BetaKiller\Exception
      * @throws \Kohana_Exception
-     * @throws \Kohana_Minion_Exception
+     * @throws \BetaKiller\Console\ConsoleException
      */
     public static function apply(string $filename, string $direction, ConsoleTaskInterface $task): bool
     {
@@ -138,7 +138,7 @@ class MigrationHelper
 
             static::after_migration($instance, $direction);
         } catch (Throwable $e) {
-            throw new Kohana_Minion_Exception('Fatal error! '.$e->getMessage().' in '.$e->getFile().':'.$e->getFile());
+            throw new ConsoleException('Fatal error! '.$e->getMessage().' in '.$e->getFile().':'.$e->getFile());
         }
 
         if ($direction === self::DIRECTION_UP) {

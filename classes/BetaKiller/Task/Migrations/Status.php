@@ -2,11 +2,11 @@
 
 namespace BetaKiller\Task\Migrations;
 
+use BetaKiller\Console\ConsoleHelper;
 use BetaKiller\Console\ConsoleInputInterface;
 use BetaKiller\Console\ConsoleOptionBuilderInterface;
 use BetaKiller\Task\AbstractTask;
 use BetaKiller\Migration\MigrationHelper;
-use Minion_CLI;
 
 /**
  * Show available to apply migrations
@@ -32,7 +32,7 @@ class Status extends AbstractTask
         $migrations = MigrationHelper::get_available_migrations();
 
         if (sizeof($migrations) == 0) {
-            Minion_CLI::write('There is no available migrations');
+            ConsoleHelper::write('There is no available migrations');
 
             return;
         }
@@ -43,7 +43,7 @@ class Status extends AbstractTask
             'description',
         ];
 
-        Minion_CLI::write('Available migrations:');
-        Minion_CLI::write(MigrationHelper::table($migrations, $columns));
+        ConsoleHelper::write('Available migrations:');
+        ConsoleHelper::write(MigrationHelper::table($migrations, $columns));
     }
 }

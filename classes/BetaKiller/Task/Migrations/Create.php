@@ -2,15 +2,17 @@
 
 namespace BetaKiller\Task\Migrations;
 
+use BetaKiller\Console\ConsoleException;
+use BetaKiller\Console\ConsoleHelper;
 use BetaKiller\Console\ConsoleInputInterface;
 use BetaKiller\Console\ConsoleOptionBuilderInterface;
+use BetaKiller\Migration\MigrationHelper;
 use BetaKiller\Task\AbstractTask;
 use Kohana;
-use BetaKiller\Migration\MigrationHelper;
-use Minion_CLI;
-use Minion_Exception;
 use Throwable;
 use UTF8;
+use Validation;
+use View;
 
 /**
  * Creates a new migration file
@@ -41,17 +43,17 @@ class Create extends AbstractTask
     {
         $scope = $params->has(self::ARG_SCOPE)
             ? $params->getString(self::ARG_SCOPE)
-            : Minion_CLI::read('Migration scope ('.implode(', ', array_keys($this->get_allowed_scopes())).')');
+            : ConsoleHelper::read('Migration scope ('.implode(', ', array_keys($this->get_allowed_scopes())).')');
 
         $name = $params->has(self::ARG_NAME)
             ? $params->getString(self::ARG_NAME)
-            : Minion_CLI::read('Migration short name (3-128 characters, [A-Za-z0-9-_] )');
+            : ConsoleHelper::read('Migration short name (3-128 characters, [A-Za-z0-9-_] )');
 
         $desc = $params->has(self::ARG_DESC)
             ? $params->getString(self::ARG_DESC)
-            : Minion_CLI::read('Migration description (not necessarily)');
+            : ConsoleHelper::read('Migration description (not necessarily)');
 
-        $validation = \Validation::factory(['name' => $name])
+        $validation = Validation::factory(['name' => $name])
             ->rules('name', [
                 ['not_empty'],
                 ['min_length', [':value', 3]],
@@ -62,7 +64,7 @@ class Create extends AbstractTask
 
         if (!$validation->check()) {
             foreach ($validation->errors('minion/migrations') as $error) {
-                Minion_CLI::write($error);
+                ConsoleHelper::write($error);
             }
 
             return;
@@ -73,7 +75,7 @@ class Create extends AbstractTask
         $name     = UTF8::ucfirst($name);
         $class    = MigrationHelper::filename_to_class($filename);
 
-        $contents = \View::factory('minion/migrations/create')
+        $contents = View::factory('minion/migrations/create')
             ->set('class', $class)
             ->set('id', $id)
             ->set('name', $name)
@@ -94,13 +96,13 @@ class Create extends AbstractTask
         try {
             file_put_contents($full_path, $contents);
         } catch (Throwable $e) {
-            Minion_CLI::write('Error! '.$e->getMessage());
+            ConsoleHelper::write('Error! '.$e->getMessage());
         }
 
-        Minion_CLI::write('Done! Check '.$full_path);
+        ConsoleHelper::write('Done! Check '.$full_path);
     }
 
-    protected function detect_scope_directory($scope)
+    protected function detect_scope_directory($scope): string
     {
         $allowed_scopes = $this->get_allowed_scopes();
 
@@ -127,7 +129,7 @@ class Create extends AbstractTask
         }
 
         if (!$path) {
-            throw new Minion_Exception('Unknown migration scope :value', [':value' => $scope]);
+            throw new ConsoleException('Unknown migration scope :value', [':value' => $scope]);
         }
 
         return $path;
@@ -138,7 +140,7 @@ class Create extends AbstractTask
         return Kohana::$config->load('migrations')->get('directory');
     }
 
-    protected function get_allowed_scopes()
+    protected function get_allowed_scopes(): array
     {
         return (array)Kohana::$config->load('migrations')->get('scopes');
     }
@@ -146,12 +148,12 @@ class Create extends AbstractTask
     /**
      * Generates a task full filename by task name
      *
-     * @param integer $id   migration id
-     * @param string  $name migration name
+     * @param int    $id   migration id
+     * @param string $name migration name
      *
      * @return string
      */
-    protected function _filename($id, $name)
+    protected function _filename($id, $name): string
     {
         return $id.MigrationHelper::DELIMITER.str_replace(['-', ' '], '_', UTF8::strtolower($name)).EXT;
     }

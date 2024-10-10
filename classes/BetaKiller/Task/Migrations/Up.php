@@ -2,11 +2,12 @@
 
 namespace BetaKiller\Task\Migrations;
 
+use BetaKiller\Console\ConsoleException;
+use BetaKiller\Console\ConsoleHelper;
 use BetaKiller\Console\ConsoleInputInterface;
 use BetaKiller\Console\ConsoleOptionBuilderInterface;
 use BetaKiller\Task\AbstractTask;
 use BetaKiller\Migration\MigrationHelper;
-use Minion_CLI;
 
 /**
  * Applies migrations
@@ -48,11 +49,11 @@ class Up extends AbstractTask
                     $result = MigrationHelper::apply($migration['filename'], MigrationHelper::DIRECTION_UP, $this);
 
                     if ($result) {
-                        Minion_CLI::write('Migration '.$migration['filename'].' applied'.PHP_EOL);
+                        ConsoleHelper::write('Migration '.$migration['filename'].' applied'.PHP_EOL);
                     }
-                } catch (\Kohana_Minion_Exception $e) {
-                    Minion_CLI::write($e->getMessage());
-                    Minion_CLI::write('Halted!');
+                } catch (ConsoleException $e) {
+                    ConsoleHelper::write($e->getMessage());
+                    ConsoleHelper::write('Halted!');
                     exit(1);
                 }
             }

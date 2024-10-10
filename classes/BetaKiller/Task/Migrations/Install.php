@@ -2,13 +2,13 @@
 
 namespace BetaKiller\Task\Migrations;
 
+use BetaKiller\Console\ConsoleException;
+use BetaKiller\Console\ConsoleHelper;
 use BetaKiller\Console\ConsoleInputInterface;
 use BetaKiller\Console\ConsoleOptionBuilderInterface;
 use BetaKiller\Task\AbstractTask;
 use Database;
 use Kohana;
-use Kohana_Minion_Exception;
-use Minion_CLI;
 use Throwable;
 
 /**
@@ -43,7 +43,7 @@ class Install extends AbstractTask
         $install_file = Kohana::find_file('schemas', 'migrations/'.$connection_type.'/install', 'sql');
 
         if (!is_file($install_file)) {
-            throw new Kohana_Minion_Exception('File schemas/migrations/'.$connection_type.'/install.sql doesn\'t exist');
+            throw new ConsoleException('File schemas/migrations/'.$connection_type.'/install.sql doesn\'t exist');
         }
 
         $query = file_get_contents($install_file);
@@ -52,9 +52,9 @@ class Install extends AbstractTask
             Database::instance()
                 ->query(null, str_replace(':prefix_', $table_prefix, $query));
         } catch (Throwable $e) {
-            throw new Kohana_Minion_Exception($e->getMessage());
+            throw new ConsoleException($e->getMessage());
         }
 
-        Minion_CLI::write('Migrations service successfully installed');
+        ConsoleHelper::write('Migrations service successfully installed');
     }
 }

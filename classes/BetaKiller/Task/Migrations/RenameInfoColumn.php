@@ -2,13 +2,13 @@
 
 namespace BetaKiller\Task\Migrations;
 
+use BetaKiller\Console\ConsoleHelper;
 use BetaKiller\Console\ConsoleInputInterface;
 use BetaKiller\Console\ConsoleOptionBuilderInterface;
 use BetaKiller\Task\AbstractTask;
 use Database;
 use DB;
 use Kohana;
-use Minion_CLI;
 
 /**
  * Creates a new migration file
@@ -37,6 +37,6 @@ class RenameInfoColumn extends AbstractTask
 
         DB::query(Database::SELECT, "ALTER TABLE `$table` CHANGE `info` `description` TEXT NOT NULL DEFAULT '' AFTER `name`;");
 
-        Minion_CLI::write('Done!');
+        ConsoleHelper::write('Done!');
     }
 }

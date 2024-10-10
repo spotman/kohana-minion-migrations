@@ -2,14 +2,13 @@
 
 namespace BetaKiller\Task\Migrations;
 
+use BetaKiller\Console\ConsoleHelper;
 use BetaKiller\Console\ConsoleInputInterface;
 use BetaKiller\Console\ConsoleOptionBuilderInterface;
+use BetaKiller\Migration\MigrationHelper;
 use BetaKiller\Task\AbstractTask;
-use DateTimeImmutable;
 use DB;
 use Kohana;
-use BetaKiller\Migration\MigrationHelper;
-use Minion_CLI;
 
 /**
  * Show migrations history
@@ -69,7 +68,7 @@ class History extends AbstractTask
             $legend .= ' from '.$date;
         }
 
-        Minion_CLI::write($legend.':');
+        ConsoleHelper::write($legend.':');
 
         /** @var \Database_Result $result */
         $result = $history->order_by('id', 'DESC')->execute();
@@ -77,7 +76,7 @@ class History extends AbstractTask
         $history = $result->as_array();
 
         if (sizeof($history) == 0) {
-            Minion_CLI::write('Nothing found');
+            ConsoleHelper::write('Nothing found');
 
             return;
         }
@@ -89,6 +88,6 @@ class History extends AbstractTask
             'description',
         ];
 
-        Minion_CLI::write(MigrationHelper::table($history, $columns));
+        ConsoleHelper::write(MigrationHelper::table($history, $columns));
     }
 }

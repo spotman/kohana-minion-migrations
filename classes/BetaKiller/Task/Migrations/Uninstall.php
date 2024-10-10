@@ -2,13 +2,13 @@
 
 namespace BetaKiller\Task\Migrations;
 
+use BetaKiller\Console\ConsoleHelper;
 use BetaKiller\Console\ConsoleInputInterface;
 use BetaKiller\Console\ConsoleOptionBuilderInterface;
 use BetaKiller\Task\AbstractTask;
 use Database;
 use Kohana;
-use Kohana_Minion_Exception;
-use Minion_CLI;
+use BetaKiller\Console\ConsoleException;
 use Throwable;
 
 /**
@@ -32,11 +32,11 @@ class Uninstall extends AbstractTask
 
     public function run(ConsoleInputInterface $params): void
     {
-        Minion_CLI::write('You\'re going to uninstall the migrations service. All migrations data will be lost.');
-        $sure = Minion_CLI::read('If you are sure, type fully "yes"');
+        ConsoleHelper::write('You\'re going to uninstall the migrations service. All migrations data will be lost.');
+        $sure = ConsoleHelper::read('If you are sure, type fully "yes"');
 
         if ($sure !== 'yes') {
-            Minion_CLI::write('Uninstalling canceled');
+            ConsoleHelper::write('Uninstalling canceled');
 
             return;
         }
@@ -52,7 +52,7 @@ class Uninstall extends AbstractTask
         $uninstall_file = Kohana::find_file('schemas', 'migrations/'.$connection_type.'/uninstall', 'sql');
 
         if (!is_file($uninstall_file)) {
-            throw new Kohana_Minion_Exception('File schemas/migrations/'.$connection_type.'/uninstall.sql doesn\'t exist');
+            throw new ConsoleException('File schemas/migrations/'.$connection_type.'/uninstall.sql doesn\'t exist');
         }
 
         $query = file_get_contents($uninstall_file);
@@ -61,9 +61,9 @@ class Uninstall extends AbstractTask
             Database::instance()
                 ->query(null, str_replace(':prefix_', $table_prefix, $query));
         } catch (Throwable $e) {
-            throw new Kohana_Minion_Exception($e->getMessage());
+            throw new ConsoleException($e->getMessage());
         }
 
-        Minion_CLI::write('Migrations service successfully uninstalled');
+        ConsoleHelper::write('Migrations service successfully uninstalled');
     }
 }

@@ -2,13 +2,13 @@
 
 namespace BetaKiller\Task\Migrations;
 
+use BetaKiller\Console\ConsoleException;
+use BetaKiller\Console\ConsoleHelper;
 use BetaKiller\Console\ConsoleInputInterface;
 use BetaKiller\Console\ConsoleOptionBuilderInterface;
+use BetaKiller\Migration\MigrationHelper;
 use BetaKiller\Task\AbstractTask;
 use Kohana;
-use Kohana_Minion_Exception;
-use BetaKiller\Migration\MigrationHelper;
-use Minion_CLI;
 
 /**
  * Applies migrations
@@ -57,18 +57,18 @@ class Down extends AbstractTask
 
         foreach ($applied_migrations as $migration) {
             try {
-                $result = \BetaKiller\Migration\MigrationHelper::apply($migration['filename'], MigrationHelper::DIRECTION_DOWN, $this);
+                $result = MigrationHelper::apply($migration['filename'], MigrationHelper::DIRECTION_DOWN, $this);
 
                 if ($result) {
-                    Minion_CLI::write('Migration '.$migration['filename'].' rolled back');
+                    ConsoleHelper::write('Migration '.$migration['filename'].' rolled back');
                 }
-            } catch (Kohana_Minion_Exception $e) {
-                Minion_CLI::write($e->getMessage());
-                Minion_CLI::write('Halted!');
+            } catch (ConsoleException $e) {
+                ConsoleHelper::write($e->getMessage());
+                ConsoleHelper::write('Halted!');
                 exit(1);
             }
         }
 
-        Minion_CLI::write('Done!');
+        ConsoleHelper::write('Done!');
     }
 }
